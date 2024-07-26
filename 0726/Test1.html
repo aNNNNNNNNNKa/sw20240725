@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>과제 1</title>
+</head>
+<body>
+    <form action="form_ok.php" method="post">
+        <label for="uname">이름</label>
+        <input type="text" id="uname" name="uname"
+        placeholder="이름을 입력"><br>
+    </form>
+
+    <form action="form_ok.php" method="post">
+        <label for="udep">부서</label>
+        <input type="text" id="udep" department="udep"
+        placeholder="부서 이름을 입력"><br>
+    </form>
+
+    <form action="form_ok.php" method="post">
+        <label for="upos">직책</label>
+        <input type="text" id="upos" position="upos"
+        placeholder="직책을 입력"><br>
+    </form>
+
+    <label for="profile">사진
+        <input type="file"
+               id="profile"
+               accept="image/png, image/jpeg">
+    </label>
+    <br><br>
+        <input type="submit" value="새 사원 추가">
+</body>
+</html>
