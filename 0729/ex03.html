@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ex.03</title>
+    <script>
+        window.onload = function(){
+            var memoTxt = document.getElementById('memoTxt');
+
+            // querySelectio('')은 CSS의 선택기(selector)를 그대로 사용 가능.
+            // id는 #으로 시작
+            // class는 .으로 시작
+            // 속성은 []로 구분해서 사용
+            // 태그는 그냥 태그 이름으로...
+            var demo = document.querySelector('#demo');
+            var clickBtn = document.querySelector('#clickBtn');
+            var resetBtn = document.querySelector('#resetBtn');
+
+            // TDD : 테스트 주도 개발
+            console.log(memoTxt, demo, resetBtn);
+
+            // 이벤트 핸들러 만들기
+            clickBtn.onclick=function(){
+                console.log('클릭!');
+                var memoTxt = document.getElementById('memoTxt').value;
+                document.getElementById("demo").innerText=memoTxt;
+            }
+            resetBtn.onclick=function(){
+                console.log('초기화!');
+                document.getElementById("demo").innerText="JavaScript can change HTML content.";
+            }
+            
+
+        }
+    </script>
+
+</head>
+<body>
+    메모 : <input type="text" id="memoTxt">
+    <p id="demo">JavaScript can change HTML content.</p>
+
+    <!-- 인터널 방식 적용 -->
+    <button type="button" id="clickBtn">Click</button>
+    <button type="button" id="resetBtn">Reset</button>
+</body>
+</html>
