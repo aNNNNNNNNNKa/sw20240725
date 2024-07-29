@@ -21,10 +21,11 @@
 
             // 함수 선언
             HTMLButtonElement.prototype.handleDelEvt = function (btn) {
-                //console.log(btn);
+                //console.dir(btn);
                 // 트래버싱으로 상대적인 요소 찾기
                 var trElement = btn.parentElement.parentElement;
-                console.log('handleDelEvt 호출 ...', btn.dataset.seq);
+                //console.log('handleDelEvt 호출 ...', btn.dataset.seq);
+                console.log('handleDelEvt 호출 ...', trElement.dataset.seq);
             }
 
             HTMLButtonElement.prototype.editClickHandle = function() {
@@ -75,12 +76,13 @@
                 console.log('초기화!');
                 window.location.reload()
             }
+
         }
     </script>
 </head>
 <body>
     <h1>Todo List</h1>
-    메모: <input type="text" id="memoTxt" value="할 일 입력"> 
+    메모: <input type="text" id="memoTxt" value="안녕 세계"> 
     <button type="button" id="clickBtn">Save</button>
     <button type="button" id="resetBtn">Reset</button>
     <hr>
