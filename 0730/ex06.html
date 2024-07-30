@@ -3,9 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Ex.06</title>
+    <style>
+        div {
+            border: 1px solid navy;
+            padding: 5px;
+            border-radius: 8px;
+        }
+        div.header {
+            overflow: hidden;
+        }
+        div.middle {
+            overflow: hidden;
+        }
+        div.footer {
+            height: 100px;
+        }
+        div.container {
+            width: 1000px;
+            margin: auto;
+        }
+        div.header h1 {
+            text-align: center;
+        }
+        div.header div {
+            height: 50px;
+        }
+
+        div.middle > div:nth-child(1) {
+            width: 180px;
+        }
+        div.middle > div:nth-child(2) {
+            width: 580px;
+        }
+        div.middle > div:nth-child(3) {
+            width: 180px;
+        }
+        div.middle > div {
+            float: left;
+            height: 300px;
+        }
+
+        header{
+            border: 0px;
+            width: 800px;
+            margin: auto;
+        }
+
+        nav ul {
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            list-style: none;
+            float: left;
+            width: 100%;
+        }
+
+        nav ul li {
+            float: left;
+            padding: 0 70px;
+            box-sizing: border-box;
+            line-height: 50px;
+            font-size: large;
+            font-weight: bold;
+        }
+
+        nav ul li:hover {
+            border-bottom: 3px solid orangered;
+            color: orangered;
+        }
+        div.middle{
+            align-items: center;
+            box-sizing: border-box;
+            font-size: large;
+        }
+    </style>
 </head>
 <body>
-    
+    <div class="container">
+        <div class="header">
+            <h1>소프트웨어 공작실</h1>
+            <div>
+                <nav>
+                    <ul>
+                        <li>Home</li>
+                        <li>Profile</li>
+                        <li>Gallery</li>
+                        <li>Lecture</li>
+                        <li>Shop</li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="middle">
+            <div>
+                <li>고양이</li>
+                <li>강아지</li>
+                <li>펭귄</li>
+                <li>토끼</li>
+                <li>앵무새</li>
+            </div>
+            <div>
+                <img src="img/cat.png" alt="cat" width="100%" height="100%">
+            </div>
+            <div>
+
+            </div>
+        </div>
+        <div class="footer">
+
+        </div>
+    </div>
 </body>
 </html>
