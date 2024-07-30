@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ex.02</title>
+</head>
+<body>
+    <h1>초등학생 저학년용 계산기</h1>
+    <form action="">
+        <fieldset>
+            <legend>계산기</legend>
+            <input type="text" size="2" value="0" class="num1" pattern="\d*">
+            <select name="" id="oper">
+                <option value="+">+</option>
+                <option value="-">-</option>
+                <option value="*">*</option>
+                <option value="/">/</option>
+            </select>
+            <input type="text" size="2" value="0" class="num2" pattern="\d*">
+            <button class="resultBtn">=</button>
+            <span class="resultArea">0</span>
+            <button class="resetBtn">reset</button>
+        </fieldset>
+    </form>
+
+    <script>
+        // getElementByClassName()은 리턴형이 리스트(HTMLCollection) 형태이다.
+        var num1 = document.getElementsByClassName('num1')[0];
+        // querySelectroAll() 이나 querySelector()는 CSS 선택기를 그대로 사용.
+        var num2 = document.querySelectorAll('.num2')[0];
+        var resultBtn = document.querySelector('.resultBtn');
+        var resultArea = document.querySelector('.resultArea');
+        var oper = document.getElementById('oper');
+        var resetBtn = document.querySelector('.resetBtn');
+
+        // 계산기를 직접 구현 해 봅니다.
+        // 초등학교 저학용 용이므로 음수가 나오지 않게 구현하세요.
+        
+        function calculator(event){
+            //form의 기본 기능을 잠시 중단한다.
+            event.preventDefault();
+
+            var hang1 = parseInt(num1.value);
+            var hang2 = parseInt(num2.value);
+            var result;
+
+            switch (oper.value) {
+                case '+':
+                    result = hang1 + hang2;
+                    break;
+                case '-':
+                    result = hang1 >= hang2 ? hang1 - hang2 : hang2 - hang1;
+                    break;
+                case '*':
+                    result = hang1 * hang2;
+                    break;
+                case '/':
+                    result = hang2 !== 0 ? Math.floor(hang1 / hang2) : 0;
+                    break;
+                default:
+                    result = 0;
+            }
+            resultArea.innerHTML = result;
+        }
+        resultBtn.addEventListener('click', calculator);
+        resetBtn.addEventListener('click', function() {
+            num1.value = '0';
+            num2.value = '0';
+            resultArea.textContent = '0';
+        });
+    </script>
+</body>
+</html>
