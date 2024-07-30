@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ex.04</title>
+    <title>Document</title>
     <style>
-        #modifyBox{
+        td.modifyBox {
             display: none;
         }
     </style>
@@ -23,41 +23,46 @@
             var demo = document.querySelector('#demo');
             var clickBtn = document.querySelector('#clickBtn');
             var resetBtn = document.querySelector('#resetBtn');
-
             HTMLButtonElement.prototype.handleDelEvt = function (btn) {
                 var trElement = btn.parentElement.parentElement;
-                console.log('handleDelEvt 호출 ...', trElement.dataset.seq);
                 var targetSeq = trElement.dataset.seq;
 
-                var idx = todoList.findIndex(function(todo){
+                var idx = todoList.findIndex(function(todo) {
                     return targetSeq == todo.seq;
                 });
 
-                if(idx != -1){
-                    todoList.splice(idx, 1)
+                if(idx != -1) {
+                    todoList.splice(idx, 1);
                     drawList();
                 }
             }
 
-               HTMLButtonElement.prototype.editClickHandle = function(btn) {
+            HTMLButtonElement.prototype.editClickHandle = function(btn) {
                 var trElement = btn.parentElement.parentElement;
                 var targetSeq = trElement.dataset.seq;
-                var idx = todoList.findIndex(function(todo){
+                var idx = todoList.findIndex(function(todo) {
                     return targetSeq == todo.seq;
                 });
 
-                if(idx != -1){
-                    var modifyBox = document.querySelector("#modifyBox");
+                if(idx != -1) {
+                    var modifyBox = trElement.querySelector(".modifyBox");
+                    var titleBox = trElement.querySelector(".titleBox");
                     modifyBox.style.display = "block";
-                    var modifyTxt = document.querySelector("#modifyTxt");
+                    titleBox.style.display = "none";
+                    var modifyTxt = trElement.querySelector(".modifyTxt");
                     modifyTxt.value = todoList[idx].title;
-    
-                    document.querySelector("#modifyBtn").onclick = function(event){
-                        todoList[idx].title = modifyTxt.value;
+
+                    trElement.querySelector(".modifyBtn").onclick = function(event) {
                         modifyBox.style.display = "none";
+                        todoList[idx].title =  modifyTxt.value;
                         drawList();
                     };
                 }
+                
+            }
+
+            window.aaaa = function() {
+                console.log('windows.aaa() 호출...');
             }
 
             function drawList() {
@@ -65,13 +70,15 @@
                 todoList.forEach(function(todoObj){
                     demo.innerHTML += `<tr align="center" data-seq="${todoObj.seq}">
                         <td><input type="checkbox" onchange="window.aaaa(this)"></td>
-                        <td>${ todoObj.title }</td>
+                        <td class="titleBox">${ todoObj.title }</td>
+                        <td class="modifyBox">
+                            <input type="text" class="modifyTxt"> <button class="modifyBtn">수정완료</button>
+                        </td>
                         <td><button onclick="editClickHandle(this)">수정</button></td>
                         <td><button onClick="handleDelEvt(this)">삭제</button></td>
                     </tr>`;
                 });
             }
-
             drawList();
 
             var handleEvent = function(event) {
@@ -80,7 +87,6 @@
                 memoTxt.value = "";
                 memoTxt.focus();
             }
-
             clickBtn.addEventListener('click', handleEvent);
 
             memoTxt.onkeyup = function() {
@@ -88,27 +94,17 @@
                     handleEvent(event);
                 }
             }
-
-            resetBtn.onclick=function(){
-                console.log('초기화!');
-                window.location.reload()
-            }
-
         }
     </script>
 </head>
 <body>
     <h1>Todo List</h1>
-    메모: <input type="text" id="memoTxt" value="할 일 입력"> 
+    메모: <input type="text" id="memoTxt" value="안녕 세계"> 
     <button type="button" id="clickBtn">Save</button>
     <button type="button" id="resetBtn">Reset</button>
     <hr>
     검색: <input type="text" id="searchTxt"> 
     <button id="searchBtn">검색</button>
-    <div id="modifyBox">
-        <hr>
-        수정 : <input type="text" id="modifyTxt"><button id="modifyBtn">수정완료</button>
-    </div>
     <hr>
     <table width="550" border="1">
         <thead>
