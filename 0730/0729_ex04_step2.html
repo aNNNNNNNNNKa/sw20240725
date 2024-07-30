@@ -14,8 +14,8 @@
             {seq:101, title:"여행하기", done:false},
             {seq:102, title:"포트폴리오 만들기", done:true},
             {seq:103, title:"팀 프로젝트 하기", done:false},
-            {seq:104, title:"저녁 먹기", done:true},
-            {seq:105, title:"엄마 생일 선물 준비하기", done:false},
+            {seq:104, title:"저녁 먹기", done:false},
+            {seq:105, title:"엄마 생일 선물 준비하기", done:false}
         ];
         var seqCnt = 106;
 
@@ -62,15 +62,24 @@
                 
             }
 
-            window.aaaa = function() {
-                console.log('windows.aaa() 호출...');
+            window.aaaa = function(element) {
+                var trElement = element.parentElement.parentElement;
+                var targetSeq = trElement.dataset.seq;
+                var idx = todoList.findIndex(function(todo) {
+                    return targetSeq == todo.seq;
+                });
+
+                if(idx != -1) {
+                    todoList[idx].done = !todoList[idx].done;
+                    drawList();
+                }
             }
 
             function drawList() {
                 demo.innerHTML = "";
                 todoList.forEach(function(todoObj){
                     demo.innerHTML += `<tr align="center" data-seq="${todoObj.seq}">
-                        <td><input type="checkbox" onchange="window.aaaa(this)"></td>
+                        <td><input type="checkbox"${todoObj.done?"checked":""} onchange="window.aaaa(this)"></td>
                         <td class="titleBox" style="${todoObj.done?"text-decoration:line-through":""}">${ todoObj.title }</td>
                         <td class="modifyBox">
                             <input type="text" class="modifyTxt"> <button class="modifyBtn">수정완료</button>
@@ -100,7 +109,7 @@
 </head>
 <body>
     <h1>Todo List</h1>
-    메모: <input type="text" id="memoTxt" value="안녕 세계"> 
+    메모: <input type="text" id="memoTxt" value="할 일 입력"> 
     <button type="button" id="clickBtn">Save</button>
     <button type="button" id="resetBtn">Reset</button>
     <hr>
