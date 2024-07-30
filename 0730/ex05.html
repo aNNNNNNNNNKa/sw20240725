@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ex.05</title>
+    <style>
+        header{
+            border: 0px solid green;
+            width: 800px;
+            margin: auto;
+        }
+
+        h1{
+            text-align: center;
+        }
+
+        ul{
+            border: 0px solid red;
+            padding: 0;
+            /* height 속성을 주지 않고 overflow 설정 */
+            overflow:hidden;
+            width: 600px;
+            margin: auto;
+        }
+
+        header ul li{
+            width: 120px;
+            height: 50px;
+            border: 0px solid blue;
+            text-align: center;
+            list-style: none;
+            float: left;
+            box-sizing: border-box;
+            line-height: 50px;
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+        }
+
+        nav{
+            border-bottom: 1px solid black;
+        }
+        header ul li:hover{
+            border-bottom: 2px solid magenta;
+            font-weight: bold;
+            color: magenta;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>소프트웨어 공작실</h1>
+        <nav>
+            <ul>
+                <li>Home</li>
+                <li>Profile</li>
+                <li>Gallery</li>
+                <li>Lecture</li>
+                <li>Shop</li>
+            </ul>
+        </nav>
+    </header>
+</body>
+</html>
