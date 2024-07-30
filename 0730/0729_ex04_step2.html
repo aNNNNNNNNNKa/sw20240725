@@ -14,9 +14,10 @@
             {seq:101, title:"여행하기", done:false},
             {seq:102, title:"포트폴리오 만들기", done:true},
             {seq:103, title:"팀 프로젝트 하기", done:false},
-            {seq:104, title:"엄마 생일 선물 준비하기", done:false},
+            {seq:104, title:"저녁 먹기", done:true},
+            {seq:105, title:"엄마 생일 선물 준비하기", done:false},
         ];
-        var seqCnt = 105;
+        var seqCnt = 106;
 
         window.onload=function() {
             var memoTxt = document.getElementById('memoTxt');
@@ -34,7 +35,7 @@
                 if(idx != -1) {
                     todoList.splice(idx, 1);
                     drawList();
-                }
+                };
             }
 
             HTMLButtonElement.prototype.editClickHandle = function(btn) {
@@ -70,7 +71,7 @@
                 todoList.forEach(function(todoObj){
                     demo.innerHTML += `<tr align="center" data-seq="${todoObj.seq}">
                         <td><input type="checkbox" onchange="window.aaaa(this)"></td>
-                        <td class="titleBox">${ todoObj.title }</td>
+                        <td class="titleBox" style="${todoObj.done?"text-decoration:line-through":""}">${ todoObj.title }</td>
                         <td class="modifyBox">
                             <input type="text" class="modifyTxt"> <button class="modifyBtn">수정완료</button>
                         </td>
