@@ -60,6 +60,23 @@ app.get('/saram/edit', function(req, res) {
     });
 });
 
+app.get('/saram/update', function(req, res) {
+    console.log("GET - /saram/update >>> ", req.query);
+    var idx = saramList.findIndex(function(saram) {
+        return saram.no == req.query.no;
+    });
+    var saram = null;
+    if (idx!= -1) {
+        saram = saramList[idx];
+    }
+    saram.name = req.query.name;
+    saram.email = req.query.email;
+    saram.job = req.query.job;
+    saram.age = parseInt(req.query.age);
+    
+    res.send(req.query);
+});
+
 const server = http.createServer(app);
 server.listen(port, function() {
     console.log("서버 실행 중 >>> http://localhost:"+port);
