@@ -60,7 +60,7 @@ app.get('/saram/edit', function(req, res) {
     });
 });
 
-app.get('/saram/update', function(req, res) {
+app.get('/saram/update', function   (req, res) {
     console.log("GET - /saram/update >>> ", req.query);
     var idx = saramList.findIndex(function(saram) {
         return saram.no == req.query.no;
