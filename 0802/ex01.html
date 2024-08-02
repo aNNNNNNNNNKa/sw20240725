@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <h1>Todo List</h1>
+    <button id="loadBtn">목록 불러오기</button>
+    <ul id="todoListArea"></ul>
+    <script>
+        const xhr = new XMLHttpRequest();
+        console.dir(xhr);
+
+        xhr.onreadystatechange = function(event){
+            //console.log("readyState: ", xhr.readyState);
+            //console.log("status: ", xhr.status);
+            //console.log(xhr.responseText);
+            //console.dir(xhr.responseXML);
+            //console.dir(xhr);
+
+            var todoListTxt = xhr.responseText;
+            var todoList = JSON.parse(todoListTxt)['todoLists'];
+            var noCnt = JSON.parse(todoListTxt)['noCnt'];
+
+            //console.log(todoList);
+            //console.log(noCnt);
+
+            const todoListArea = document.querySelector('#todoListArea');
+            todoList.forEach(todo => {
+                const liElement = document.createElement("li");
+                liElement.innerHTML = todo.title;
+                todoListArea.appendChild(liElement);
+            });
+        }
+
+        var method = "GET";
+        var url = "data.xml";
+        xhr.open(method, url);
+
+        xhr.send();
+    </script>
+</body>
+</html>
