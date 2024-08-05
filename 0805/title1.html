@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+    </head>
+    <body>
+        <h1>나이와 요일 입력</h1>
+        <form name="inputForm">
+            * 나이 입력: <input type="number" name="age" value="0"><br>
+            * 요일 선택: <select name="dayOfWeek">
+                <option value="일">일</option>
+                <option value="월">월</option>
+                <option value="화">화</option>
+                <option value="수">수</option>
+                <option value="목">목</option>
+                <option value="금">금</option>
+                <option value="토">토</option>
+            </select><br>
+            <input type="submit" value="선택 결과 출력 하기"></input>
+        </form>
+        <hr>
+        <div id="resultBox">결과: ?세는 성인입니다. 오늘은 ?요일입니다.</div>
+
+        <script>
+            var form = document.forms[0];
+            var resultBox = document.querySelector("#resultBox");
+            
+            form.onsubmit = (e) => {
+                e.preventDefault(); 
+
+                let age = Number(e.target.age.value);
+                let message = Number(e.target.age.value) > 20 ? "성인" : "미성년자";
+                let dayOfWeek = Number(e.target.dayOfWeek.value);
+                let dayName = form.elements["dayOfWeek"].value;
+
+                resultBox.innerHTML = `결과: ${age}세는 ${message}입니다. 오늘은 ${dayName}요일입니다.`;
+            }
+        </script>
+    </body>
+</html>
