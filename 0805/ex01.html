@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자바스크립트 실습</title>
+</head>
+<body>
+    
+    <script>
+        var a_user = "user1";
+        let a_name = "김길동";
+
+        console.dir(window);
+        console.dir(document);
+        console.dir("this === window는 ", this == window);
+
+        var admin01 = "김길동";
+        var admin02 = "이길동";
+        var admin03 = "박길동";
+        var admin04 = "홍길동";
+
+        console.log("admin 01 = ", admin01);
+        console.log("this.admin01 = " + this.admin01);
+        console.log("window.admin01 = " + window.admin01);
+        console.log("this['admin01'] = " + this['admin01']);
+        console.log("this['admin0' + 1] = " + this['admin0' + 1]);
+        
+        for(var i=1; i<=4; i++) {
+            console.log(`admin0${i}의 결과는`,this['admin0' + i]);
+        }
+
+        function aMyFn(){
+            console.log('myFunction 실행');
+        }
+
+        class MyCls {
+            fn01() {
+                this.aClsName = "마이 클래스";
+                window.aClassName2 = "너의 클래스";
+                console.log("MyCls의 fn01() 함수", this);
+                console.log(window);
+            }
+        }
+
+        let myClsobj1 = new Mycls();
+    </script>
+
+</body>
+</html>
