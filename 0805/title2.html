@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced JavaScript Loop Example</title>
+</head>
+<body>
+    <script>
+        function getRandomNumber(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        let randomNumber = getRandomNumber(1, 10);
+
+        var sicStr = "";
+        var total = 0;
+        var prev = 0;
+        var cur = 1;
+        var next = 0;
+        
+
+        for(; cur <= 21;){
+            sicStr += cur;
+            total += cur;
+            sicStr += (c<21) ? "+" : "=";
+        
+            next = prev + cur;
+            prev = cur;
+            cur = next;
+
+        }
+
+        console.log(sicStr+total);
+    </script>
+    
+</body>
+</html>
