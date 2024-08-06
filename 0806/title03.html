@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Advanced JavaScript Function Example</title>
+</head>
+<body>
+  <script>
+   Array.prototype.extractEvenArray = function() {
+        const evenNumbers = this.filter((num) => num % 2 === 0);
+        return evenNumbers;
+    };
+
+    Array.prototype.extractOddArray = function() {
+        const evenNumbers = this.filter((num) => num % 2 !== 0);
+        return evenNumbers;
+    }
+    Array.prototype.print = function( mode) {
+      switch(mode) {
+        case 1 : document.write(this + "<br>"); break;
+        case 2 : console.log(this);break;
+        case 3 : console.dir(this);break;
+        default: 
+          document.write(this + "<br>");
+          console.log(this);
+      }
+    }
+
+    const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+    const evenArray = numbers.extractEvenArray();
+    const oddArray = numbers.extractOddArray();
+
+    evenArray.print(evenArray);
+    oddArray.print(oddArray);
+  </script>
+</body>
+</html>

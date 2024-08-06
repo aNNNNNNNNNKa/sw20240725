@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        const extractEvenNumbers = (arr) => {
+            const evenNumbers = arr.filter((num) => num % 2 === 0);
+            return evenNumbers
+        }
+
+        const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        
+        const evenaArray = extractEvenNumbers(numbers);
+
+        function print(data, mode){
+            switch(mode){
+                case 1: document.write(data); break;
+                case 2: console.log(data); break;
+                case 3: console.dir(data); break;
+                default:
+                document.write(data);
+                console.log(data);
+            }
+        }
+
+        print(evenaArray)
+    </script>
+    
+</body>
+</html>
