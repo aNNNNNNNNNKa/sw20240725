@@ -56,13 +56,13 @@
             } else {
                 updateStatus("정답! 게임을 다시 시작합니다.");
                 min = max = choiceNum;
-                resetGame();
+                setTimeout(() => window.location.reload(), 3000);
                 return;
             }
 
             if (cnt <= 0) {
                 updateStatus("기회가 모두 소진되었습니다. 게임을 다시 시작합니다.");
-                resetGame();
+                setTimeout(() => window.location.reload(), 3000);
             } else {
                 updateStatus(`기회는 ${cnt}번 남았습니다!`);
             }
@@ -84,15 +84,6 @@
                 }
             });
         }
-
-        function resetGame() {
-            min = 1;
-            max = 100;
-            num = getRandInt(min, max);
-            cnt = 5;
-            reDrawButtons();
-        }
-
         drawButtons();
     </script>
 </body>

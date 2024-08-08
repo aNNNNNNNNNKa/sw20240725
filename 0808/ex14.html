@@ -89,7 +89,7 @@
                     {"no":8,"name":"전자랜지","price":20},
                     {"no":9,"name":"에어프라이기","price":30}
                 ];
-                // productList는 localStorage에 저장하고
+                // productList는 localStorage에  저장하고
                 // 장바구니는 sessionStorage에 저장한다.
                 localStorage.setItem("productList", JSON.stringify(list));
                 localStorage.setItem("topNo", "" + getTopNo(list));
@@ -122,7 +122,7 @@
         $(function() {
             init();
             loadData();
-        });
+        }); 
     </script>
 </body>
 </html>
