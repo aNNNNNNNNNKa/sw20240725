@@ -6,6 +6,16 @@
     <title>jQuery에 많이 사용되는 메서드들</title>
     <script src="http://code.jquery.com/jquery.js"></script>
     <!-- script가 body 태그 위에 있으면 $(document).ready()같은 진입점 필요. -->
+    <!-- jQuery에서 사용 할 스타일을 미리 정의 해 둔다 -->
+    <style>
+        li.redColor {
+            color: red;
+            text-decoration: underline;
+            font-size: 24pt;
+            font-weight: 900;
+            background-color: aqua;
+        }
+    </style>
 </head>
 <body>
 
@@ -16,11 +26,20 @@
     <hr>
     <div>
         <button id="transKorBtn">한글로 변환</button>
+        <button id="toggleTodoList">목록 토글</button>
+        <hr>
+        <button id="addClassBtn">클래스 적용</button>
+        <button id="removeClassBtn">클래스 제거</button>
+        <button id="toggleClassBtn">토글 클래스</button>
     </div>
     <div>
         제목: <input type="text" class="todoTitle">
         <hr>
-        <ul class="todoList"></ul>
+        <ul class="todoList">
+            <li>코딩 하기</li>
+            <li>청소 하기</li>
+            <li>밥 하기</li>
+        </ul>
     </div>
 
 <!-- 
@@ -54,9 +73,29 @@
             );
         });
 
-        $('.todoTitle').keyup((event) => {
-            $('.todoList').html($(event.target).val())
-        })
+        $('.todoTitle').change((event) => {
+            // ${} : 템플릿 문자열 (바닐라 자바스크립트에서도 사용)
+            // $(요소) : jQuery 선택기
+            var newTitle = $(event.target).val();
+            $('.todoList').append(`<li>${ newTitle }</li>`);
+            // input 초기화 및 포커스 (메서드 체인)
+            $(event.target).val("").focus();
+        });
+
+        $('#toggleTodoList').click(function() {
+            $(".todoList").toggle('slow'); // slow, fast, 300
+        });
+
+        // 클래스 적용 메서드 연습 
+        $('#addClassBtn').click(function(event) {
+            $('.todoList li').addClass('redColor');
+        });
+        $('#removeClassBtn').click(function(event) {
+            $('.todoList li').removeClass('redColor');
+        });
+        $('#toggleClassBtn').click(function(event) {
+            $('.todoList li').toggleClass('redColor');
+        });
     });
 </script>
 </body>

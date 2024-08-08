@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .box {
+            position: absolute;
+            left: 50px;
+            top: 50px;
+            width: 100px;
+            height: 100px;
+            box-sizing: border-box;
+            border: 3px solid black;
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">Box</div>
+    <script>
+        $('.box').mousedown(function(e) {
+            //console.log(e.clientX, e.clientY);
+            //console.log($('.box').offset().left, $('.box').offset().top);
+            $('.box').data('gapX', e.clientX - $('.box').offset().left);
+            $('.box').data('gapY', e.clientY - $('.box').offset().top);
+            $(window).on('mousemove', function(event){
+                //console.log(event.clientX, event.clientY);
+                //console.log(e.target == $('.box')[0]);
+                $('.box').css({
+                    left: event.clientX - $('.box').data('gapX') + 'px',
+                    top: event.clientY - $('.box').data('gapY') + 'px'
+                });
+            });
+            $(window).on('mouseup', function(event) {
+                $(window).off('mousemove');
+            })
+        });
+    </script>
+</body>
+</html>
