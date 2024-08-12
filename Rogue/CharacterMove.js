@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
         path.className = 'path';
         if (x1 === x2) {
             path.style.width = `${corridorWidth}px`;
-            path.style.height = `${Math.abs(y2 - y1)}px`;
+            path.style.height = `${Math.abs(y2 - y1)}   px`;
             path.style.left = `${x1}px`;
             path.style.top = `${Math.min(y1, y2)}px`;
         } else {
