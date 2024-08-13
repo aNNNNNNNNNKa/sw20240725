@@ -2,9 +2,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('game-container');
     const mapWidth = window.innerWidth;
     const mapHeight = window.innerHeight;
-    const roomCount = 10;
-    const minRoomSize = 120;
-    const maxRoomSize = 300;
+    const roomCount = 5;
+    const minRoomSize = 200;
+    const maxRoomSize = 600;
     const corridorWidth = 40;
     const moveDistance = 40;
 
