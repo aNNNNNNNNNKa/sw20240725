@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Map with Rooms and Corridors</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            display: block;
+            margin: 0 auto;
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const tileSize = 40;
+        const mapWidth = 20;  // 맵 가로 타일 개수
+        const mapHeight = 15; // 맵 세로 타일 개수
+
+        let player = {
+            x: 0,
+            y: 0,
+            width: tileSize,
+            height: tileSize,
+            color: 'blue'
+        };
+
+        let currentRoom = 0;
+        let rooms = [];
+        let roomConfigurations = [];
+
+        // 랜덤한 방 크기 및 위치 생성 함수
+        function generateRandomRoomConfiguration() {
+            const minWidth = 5, minHeight = 5;
+            const maxWidth = 10, maxHeight = 8;
+
+            let roomConfig = [];
+
+            for (let i = 0; i < 4; i++) {  // 4개의 방을 생성
+                let width = Math.floor(Math.random() * (maxWidth - minWidth + 1)) + minWidth;
+                let height = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+
+                let x = Math.floor(Math.random() * (mapWidth - width - 1)) + 1;
+                let y = Math.floor(Math.random() * (mapHeight - height - 1)) + 1;
+
+                // 입구를 방의 랜덤 위치에 설정
+                let entrance = {
+                    x: x + Math.floor(Math.random() * width),
+                    y: y + Math.floor(Math.random() * height)
+                };
+
+                roomConfig.push({ x, y, width, height, entrance });
+            }
+
+            return roomConfig;
+        }
+
+        // 방과 통로 생성 함수
+        function generateRooms() {
+            rooms = [];
+            roomConfigurations = generateRandomRoomConfiguration();
+
+            for (const config of roomConfigurations) {
+                let room = [];
+
+                // 전체 맵을 벽으로 채우고, 방 위치에 빈 공간 생성
+                for (let y = 0; y < mapHeight; y++) {
+                    let row = [];
+                    for (let x = 0; x < mapWidth; x++) {
+                        if (
+                            y >= config.y && y < config.y + config.height &&
+                            x >= config.x && x < config.x + config.width
+                        ) {
+                            row.push(0);  // 방 내부는 빈 타일
+                        } else {
+                            row.push(1);  // 나머지는 벽으로 설정
+                        }
+                    }
+                    room.push(row);
+                }
+
+                // 출입구 설정
+                room[config.entrance.y][config.entrance.x] = 2; // 출입구를 별도의 값으로 표시
+
+                rooms.push(room);
+            }
+
+            // 방들을 연결하는 통로 생성 (가장 가까운 방끼리 연결)
+            for (let i = 0; i < roomConfigurations.length - 1; i++) {
+                const roomA = roomConfigurations[i];
+                const roomB = roomConfigurations[i + 1];
+
+                let startX = roomA.entrance.x;
+                let startY = roomA.entrance.y;
+                let endX = roomB.entrance.x;
+                let endY = roomB.entrance.y;
+
+                // 가로 통로 생성
+                for (let x = Math.min(startX, endX); x <= Math.max(startX, endX); x++) {
+                    rooms[i][startY][x] = 0; // 통로는 빈 타일로 설정
+                }
+
+                // 세로 통로 생성
+                for (let y = Math.min(startY, endY); y <= Math.max(startY, endY); y++) {
+                    rooms[i][y][endX] = 0; // 통로는 빈 타일로 설정
+                }
+            }
+        }
+
+        function drawRoom(room) {
+            for (let y = 0; y < mapHeight; y++) {
+                for (let x = 0; x < mapWidth; x++) {
+                    if (room[y][x] === 1) {
+                        ctx.fillStyle = 'black'; // 벽 색상
+                    } else if (room[y][x] === 2) {
+                        ctx.fillStyle = 'green'; // 출입구 색상
+                    } else {
+                        ctx.fillStyle = 'white'; // 방 내부 색상
+                    }
+                    ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                }
+            }
+        }
+
+        function drawPlayer() {
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+        }
+
+        function isCollision(newX, newY, room) {
+            const tileX = Math.floor(newX / tileSize);
+            const tileY = Math.floor(newY / tileSize);
+
+            if (tileX < 0 || tileY < 0 || tileX >= mapWidth || tileY >= mapHeight) {
+                return true;
+            }
+
+            return room[tileY][tileX] === 1;
+        }
+
+        function checkEntrance() {
+            const room = rooms[currentRoom];
+            const tileX = Math.floor(player.x / tileSize);
+            const tileY = Math.floor(player.y / tileSize);
+
+            const entrance = roomConfigurations[currentRoom].entrance;
+
+            // 플레이어가 현재 방의 출입구에 도달했는지 확인
+            if (tileX === entrance.x && tileY === entrance.y) {
+                if (currentRoom === rooms.length - 1) {
+                    // 마지막 방에서 출구를 통해 나가면 새 맵 생성
+                    generateRooms();
+                    currentRoom = 0;
+                    player.x = roomConfigurations[currentRoom].entrance.x * tileSize;
+                    player.y = roomConfigurations[currentRoom].entrance.y * tileSize;
+                } else {
+                    // 다음 방으로 이동
+                    currentRoom++;
+                    const newEntrance = roomConfigurations[currentRoom].entrance;
+                    player.x = newEntrance.x * tileSize;
+                    player.y = newEntrance.y * tileSize;
+                }
+            }
+        }
+
+        function movePlayer(dx, dy) {
+            const newX = player.x + dx;
+            const newY = player.y + dy;
+            const room = rooms[currentRoom];
+
+            if (!isCollision(newX, newY, room)) {
+                player.x = newX;
+                player.y = newY;
+                checkEntrance();  // 플레이어 이동 후 출입구 체크
+            }
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawRoom(rooms[currentRoom]);
+            drawPlayer();
+        }
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'ArrowUp') movePlayer(0, -tileSize);
+            if (e.key === 'ArrowDown') movePlayer(0, tileSize);
+            if (e.key === 'ArrowLeft') movePlayer(-tileSize, 0);
+            if (e.key === 'ArrowRight') movePlayer(tileSize, 0);
+
+            gameLoop();
+        });
+
+        // 초기화
+        generateRooms();
+        player.x = roomConfigurations[0].entrance.x * tileSize;
+        player.y = roomConfigurations[0].entrance.y * tileSize;
+        gameLoop();
+    </script>
+</body>
+</html>
