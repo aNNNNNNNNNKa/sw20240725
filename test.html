@@ -20,8 +20,8 @@
         const ctx = canvas.getContext('2d');
 
         const tileSize = 40;
-        const mapWidth = 20;  // 맵 가로 타일 개수
-        const mapHeight = 15; // 맵 세로 타일 개수
+        const mapWidth = canvas.width / tileSize;
+        const mapHeight = canvas.height / tileSize;
 
         let player = {
             x: 0,
@@ -34,6 +34,7 @@
         let currentRoom = 0;
         let rooms = [];
         let roomConfigurations = [];
+        let exitPositions = [];
 
         // 랜덤한 방 크기 및 위치 생성 함수
         function generateRandomRoomConfiguration() {
@@ -41,6 +42,7 @@
             const maxWidth = 10, maxHeight = 8;
 
             let roomConfig = [];
+            exitPositions = []; // 출구 위치 저장 배열 초기화
 
             for (let i = 0; i < 4; i++) {  // 4개의 방을 생성
                 let width = Math.floor(Math.random() * (maxWidth - minWidth + 1)) + minWidth;
@@ -49,13 +51,17 @@
                 let x = Math.floor(Math.random() * (mapWidth - width - 1)) + 1;
                 let y = Math.floor(Math.random() * (mapHeight - height - 1)) + 1;
 
-                // 입구를 방의 랜덤 위치에 설정
-                let entrance = {
-                    x: x + Math.floor(Math.random() * width),
-                    y: y + Math.floor(Math.random() * height)
-                };
+                let entrance;
+
+                do {
+                    entrance = {
+                        x: x + Math.floor(Math.random() * width),
+                        y: y + Math.floor(Math.random() * height)
+                    };
+                } while (entrance.x === Math.floor(player.x / tileSize) && entrance.y === Math.floor(player.y / tileSize));
 
                 roomConfig.push({ x, y, width, height, entrance });
+                exitPositions.push(entrance); // 출구 위치 저장
             }
 
             return roomConfig;
@@ -85,13 +91,14 @@
                     room.push(row);
                 }
 
-                // 출입구 설정
-                room[config.entrance.y][config.entrance.x] = 2; // 출입구를 별도의 값으로 표시
+                // 출입구를 방 내부의 한 타일에 설정
+                const entrance = config.entrance;
+                room[entrance.y][entrance.x] = 2; // 출입구를 표시
 
                 rooms.push(room);
             }
 
-            // 방들을 연결하는 통로 생성 (가장 가까운 방끼리 연결)
+            // 방들을 연결하는 통로 생성
             for (let i = 0; i < roomConfigurations.length - 1; i++) {
                 const roomA = roomConfigurations[i];
                 const roomB = roomConfigurations[i + 1];
@@ -110,6 +117,9 @@
                 for (let y = Math.min(startY, endY); y <= Math.max(startY, endY); y++) {
                     rooms[i][y][endX] = 0; // 통로는 빈 타일로 설정
                 }
+
+                // 통로의 끝에 출구 배치
+                rooms[i][endY][endX] = 2; // 출입구를 표시
             }
         }
 
@@ -119,7 +129,7 @@
                     if (room[y][x] === 1) {
                         ctx.fillStyle = 'black'; // 벽 색상
                     } else if (room[y][x] === 2) {
-                        ctx.fillStyle = 'green'; // 출입구 색상
+                        ctx.fillStyle = 'red'; // 출입구 색상
                     } else {
                         ctx.fillStyle = 'white'; // 방 내부 색상
                     }
@@ -149,23 +159,20 @@
             const tileX = Math.floor(player.x / tileSize);
             const tileY = Math.floor(player.y / tileSize);
 
-            const entrance = roomConfigurations[currentRoom].entrance;
-
-            // 플레이어가 현재 방의 출입구에 도달했는지 확인
-            if (tileX === entrance.x && tileY === entrance.y) {
+            if (room[tileY][tileX] === 2) { // 출입구에 도달했는지 확인
                 if (currentRoom === rooms.length - 1) {
                     // 마지막 방에서 출구를 통해 나가면 새 맵 생성
                     generateRooms();
                     currentRoom = 0;
-                    player.x = roomConfigurations[currentRoom].entrance.x * tileSize;
-                    player.y = roomConfigurations[currentRoom].entrance.y * tileSize;
                 } else {
                     // 다음 방으로 이동
                     currentRoom++;
-                    const newEntrance = roomConfigurations[currentRoom].entrance;
-                    player.x = newEntrance.x * tileSize;
-                    player.y = newEntrance.y * tileSize;
                 }
+
+                // 새로운 방의 출입구 위치로 캐릭터 이동
+                const newEntrance = roomConfigurations[currentRoom].entrance;
+                player.x = newEntrance.x * tileSize;
+                player.y = newEntrance.y * tileSize;
             }
         }
 
