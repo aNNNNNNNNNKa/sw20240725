@@ -53,12 +53,16 @@
 
                 let entrance;
 
+                // 출입구 위치가 플레이어의 위치와 겹치지 않도록 설정
                 do {
                     entrance = {
                         x: x + Math.floor(Math.random() * width),
                         y: y + Math.floor(Math.random() * height)
                     };
-                } while (entrance.x === Math.floor(player.x / tileSize) && entrance.y === Math.floor(player.y / tileSize));
+                } while (
+                    (entrance.x === Math.floor(player.x / tileSize) && entrance.y === Math.floor(player.y / tileSize)) ||
+                    (entrance.x === x && entrance.y === y)
+                );
 
                 roomConfig.push({ x, y, width, height, entrance });
                 exitPositions.push(entrance); // 출구 위치 저장
