@@ -51,21 +51,7 @@
                 let x = Math.floor(Math.random() * (mapWidth - width - 1)) + 1;
                 let y = Math.floor(Math.random() * (mapHeight - height - 1)) + 1;
 
-                let entrance;
-
-                // 출입구 위치가 플레이어의 위치와 겹치지 않도록 설정
-                do {
-                    entrance = {
-                        x: x + Math.floor(Math.random() * width),
-                        y: y + Math.floor(Math.random() * height)
-                    };
-                } while (
-                    (entrance.x === Math.floor(player.x / tileSize) && entrance.y === Math.floor(player.y / tileSize)) ||
-                    (entrance.x === x && entrance.y === y)
-                );
-
-                roomConfig.push({ x, y, width, height, entrance });
-                exitPositions.push(entrance); // 출구 위치 저장
+                roomConfig.push({ x, y, width, height });
             }
 
             return roomConfig;
@@ -95,36 +81,43 @@
                     room.push(row);
                 }
 
-                // 출입구를 방 내부의 한 타일에 설정
-                const entrance = config.entrance;
-                room[entrance.y][entrance.x] = 2; // 출입구를 표시
-
                 rooms.push(room);
             }
 
-            // 방들을 연결하는 통로 생성
+            // 방들을 연결하는 통로 생성 및 출입구 설정
             for (let i = 0; i < roomConfigurations.length - 1; i++) {
                 const roomA = roomConfigurations[i];
                 const roomB = roomConfigurations[i + 1];
 
-                let startX = roomA.entrance.x;
-                let startY = roomA.entrance.y;
-                let endX = roomB.entrance.x;
-                let endY = roomB.entrance.y;
+                let startX = roomA.x + Math.floor(roomA.width / 2);
+                let startY = roomA.y + Math.floor(roomA.height / 2);
+                let endX = roomB.x + Math.floor(roomB.width / 2);
+                let endY = roomB.y + Math.floor(roomB.height / 2);
+
+                let room = rooms[i];
 
                 // 가로 통로 생성
                 for (let x = Math.min(startX, endX); x <= Math.max(startX, endX); x++) {
-                    rooms[i][startY][x] = 0; // 통로는 빈 타일로 설정
+                    room[startY][x] = 0; // 통로는 빈 타일로 설정
                 }
 
                 // 세로 통로 생성
                 for (let y = Math.min(startY, endY); y <= Math.max(startY, endY); y++) {
-                    rooms[i][y][endX] = 0; // 통로는 빈 타일로 설정
+                    room[y][endX] = 0; // 통로는 빈 타일로 설정
                 }
 
                 // 통로의 끝에 출구 배치
                 rooms[i][endY][endX] = 2; // 출입구를 표시
+                exitPositions.push({ x: endX, y: endY });
             }
+
+            // 마지막 방에 대한 출구 설정 (임의로 방의 가장자리 한 곳에 설정)
+            const lastRoom = roomConfigurations[roomConfigurations.length - 1];
+            const lastRoomExitX = lastRoom.x + lastRoom.width - 1;
+            const lastRoomExitY = lastRoom.y + Math.floor(lastRoom.height / 2);
+
+            rooms[rooms.length - 1][lastRoomExitY][lastRoomExitX] = 2;
+            exitPositions.push({ x: lastRoomExitX, y: lastRoomExitY });
         }
 
         function drawRoom(room) {
@@ -173,10 +166,10 @@
                     currentRoom++;
                 }
 
-                // 새로운 방의 출입구 위치로 캐릭터 이동
-                const newEntrance = roomConfigurations[currentRoom].entrance;
-                player.x = newEntrance.x * tileSize;
-                player.y = newEntrance.y * tileSize;
+                // 새로운 방의 중앙으로 캐릭터 이동
+                const newRoom = roomConfigurations[currentRoom];
+                player.x = (newRoom.x + Math.floor(newRoom.width / 2)) * tileSize;
+                player.y = (newRoom.y + Math.floor(newRoom.height / 2)) * tileSize;
             }
         }
 
@@ -209,8 +202,8 @@
 
         // 초기화
         generateRooms();
-        player.x = roomConfigurations[0].entrance.x * tileSize;
-        player.y = roomConfigurations[0].entrance.y * tileSize;
+        player.x = Math.floor(roomConfigurations[0].x + roomConfigurations[0].width / 2) * tileSize;
+        player.y = Math.floor(roomConfigurations[0].y + roomConfigurations[0].height / 2) * tileSize;
         gameLoop();
     </script>
 </body>
