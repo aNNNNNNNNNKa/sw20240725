@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>랜덤 맵과 방, 통로 및 코인</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            display: block;
+            margin: 0 auto;
+            background-color: #f0f0f0;
+        }
+        #coinCounter {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 20px;
+            font-family: Arial, sans-serif;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="coinCounter">코인: 0</div>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const tileSize = 40;
+        const mapWidth = canvas.width / tileSize;
+        const mapHeight = canvas.height / tileSize;
+
+        // 전체 맵 배열 (빈 타일은 0, 벽은 1, 출구는 2)
+        let map = [];
+        for (let y = 0; y < mapHeight; y++) {
+            let row = [];
+            for (let x = 0; x < mapWidth; x++) {
+                row.push(1); // 초기에는 모두 벽으로 설정
+            }
+            map.push(row);
+        }
+
+        let player = {
+            x: 0,
+            y: 0,
+            width: tileSize,
+            height: tileSize,
+            color: 'blue'
+        };
+
+        let currentRoom = 0;
+        let rooms = [];
+        let roomConfigurations = [];
+        let exitPositions = [];
+
+        // 코인 관련 변수
+        let coins = [];
+        let coinCount = 0;
+
+        // 플레이어 시작 위치를 추적하기 위한 변수
+        let startingTileX = 0;
+        let startingTileY = 0;
+
+        // 코인 클래스
+        class Coin {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.collected = false;
+            }
+
+            draw() {
+                if (!this.collected) {
+                    ctx.fillStyle = 'gold';
+                    ctx.beginPath();
+                    ctx.arc(this.x * tileSize + tileSize / 2, this.y * tileSize + tileSize / 2, tileSize / 4, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.closePath();
+                }
+            }
+        }
+
+        // 코인 카운터 업데이트 함수
+        function updateCoinCounter() {
+            const counter = document.getElementById('coinCounter');
+            counter.textContent = `코인: ${coinCount}`;
+        }
+
+        // 랜덤한 방 크기 및 위치 생성 함수
+        function generateRandomRoomConfiguration() {
+            const minWidth = 5, minHeight = 5;
+            const maxWidth = 10, maxHeight = 8;
+
+            let roomConfig = [];
+            exitPositions = []; // 출구 위치 저장 배열 초기화
+
+            for (let i = 0; i < 4; i++) {  // 4개의 방을 생성
+                let width = Math.floor(Math.random() * (maxWidth - minWidth + 1)) + minWidth;
+                let height = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+
+                let x = Math.floor(Math.random() * (mapWidth - width - 2)) + 1;
+                let y = Math.floor(Math.random() * (mapHeight - height - 2)) + 1;
+
+                roomConfig.push({ x, y, width, height });
+            }
+
+            return roomConfig;
+        }
+
+        // 방과 통로 생성 함수
+        function generateRooms() {
+            // 맵을 모두 벽으로 초기화
+            for (let y = 0; y < mapHeight; y++) {
+                for (let x = 0; x < mapWidth; x++) {
+                    map[y][x] = 1;
+                }
+            }
+
+            rooms = [];
+            roomConfigurations = generateRandomRoomConfiguration();
+
+            for (const config of roomConfigurations) {
+                // 방 내부를 빈 공간으로 설정
+                for (let y = config.y; y < config.y + config.height; y++) {
+                    for (let x = config.x; x < config.x + config.width; x++) {
+                        map[y][x] = 0;
+                    }
+                }
+
+                rooms.push(config);
+            }
+
+            // 방들을 연결하는 통로 생성 및 출입구 설정
+            for (let i = 0; i < roomConfigurations.length - 1; i++) {
+                const roomA = roomConfigurations[i];
+                const roomB = roomConfigurations[i + 1];
+
+                let startX = roomA.x + Math.floor(roomA.width / 2);
+                let startY = roomA.y + Math.floor(roomA.height / 2);
+                let endX = roomB.x + Math.floor(roomB.width / 2);
+                let endY = roomB.y + Math.floor(roomB.height / 2);
+
+                // 가로 통로 생성
+                if (startX < endX) {
+                    for (let x = startX; x <= endX; x++) {
+                        map[startY][x] = 0;
+                    }
+                } else {
+                    for (let x = endX; x <= startX; x++) {
+                        map[startY][x] = 0;
+                    }
+                }
+
+                // 세로 통로 생성
+                if (startY < endY) {
+                    for (let y = startY; y <= endY; y++) {
+                        map[y][endX] = 0;
+                    }
+                } else {
+                    for (let y = endY; y <= startY; y++) {
+                        map[y][endX] = 0;
+                    }
+                }
+
+                // **통로의 끝에 출입구를 설정하지 않음**
+                // map[endY][endX] = 2;
+                // exitPositions.push({ x: endX, y: endY });
+            }
+
+            // 마지막 방에 대한 출입구 설정 (임의로 방의 가장자리 한 곳에 설정)
+            const lastRoom = roomConfigurations[roomConfigurations.length - 1];
+            const lastRoomExitX = lastRoom.x + lastRoom.width - 1;
+            const lastRoomExitY = lastRoom.y + Math.floor(lastRoom.height / 2);
+
+            map[lastRoomExitY][lastRoomExitX] = 2;
+            exitPositions.push({ x: lastRoomExitX, y: lastRoomExitY });
+
+            // 플레이어 시작 위치 설정 (첫 번째 방의 중앙)
+            const firstRoom = roomConfigurations[0];
+            startingTileX = firstRoom.x + Math.floor(firstRoom.width / 2);
+            startingTileY = firstRoom.y + Math.floor(firstRoom.height / 2);
+            player.x = startingTileX * tileSize;
+            player.y = startingTileY * tileSize;
+
+            // 방 생성 후 코인 생성
+            generateCoins();
+        }
+
+        // 맵당 1~5개의 코인을 생성하는 함수
+        function generateCoins() {
+            coins = [];
+            const numberOfCoins = Math.floor(Math.random() * 2) + 1; // 1에서 5개의 코인
+
+            for (let i = 0; i < numberOfCoins; i++) {
+                let placed = false;
+                let attempts = 0;
+                while (!placed && attempts < 100) { // 무한 루프 방지
+                    // 랜덤한 방 선택
+                    const roomIndex = Math.floor(Math.random() * roomConfigurations.length);
+                    const room = roomConfigurations[roomIndex];
+
+                    // 방 내에서 랜덤 위치 선택
+                    const coinX = Math.floor(Math.random() * room.width) + room.x;
+                    const coinY = Math.floor(Math.random() * room.height) + room.y;
+
+                    // 해당 타일이 빈 공간이고 시작 위치가 아니며 이미 코인이 없는지 확인
+                    if (
+                        map[coinY][coinX] === 0 && // 빈 타일인지 확인
+                        !(coinX === startingTileX && coinY === startingTileY) && // 시작 위치가 아닌지 확인
+                        !coins.some(c => c.x === coinX && c.y === coinY) // 이미 코인이 없는지 확인
+                    ) {
+                        coins.push(new Coin(coinX, coinY));
+                        placed = true;
+                    }
+                    attempts++;
+                }
+            }
+
+            // 새로운 맵 생성 시 코인 수는 초기화하지 않음 (누적)
+            updateCoinCounter();
+        }
+
+        function drawMap() {
+            for (let y = 0; y < mapHeight; y++) {
+                for (let x = 0; x < mapWidth; x++) {
+                    if (map[y][x] === 1) {
+                        ctx.fillStyle = 'black'; // 벽 색상
+                    } else if (map[y][x] === 2) {
+                        ctx.fillStyle = 'red'; // 출입구 색상
+                    } else {
+                        ctx.fillStyle = 'white'; // 빈 공간 색상
+                    }
+                    ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                }
+            }
+        }
+
+        function drawCoins() {
+            for (const coin of coins) {
+                coin.draw();
+            }
+        }
+
+        function drawPlayer() {
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+        }
+
+        // 모든 코인이 수집되었는지 확인하는 함수
+        function allCoinsCollected() {
+            return coins.every(coin => coin.collected);
+        }
+
+        function isCollision(newX, newY) {
+            const tileX = Math.floor(newX / tileSize);
+            const tileY = Math.floor(newY / tileSize);
+
+            if (tileX < 0 || tileY < 0 || tileX >= mapWidth || tileY >= mapHeight) {
+                return true;
+            }
+
+            if (map[tileY][tileX] === 1) { // 벽과 충돌
+                return true;
+            }
+
+            if (map[tileY][tileX] === 2) { // 출입구일 경우
+                if (allCoinsCollected()) {
+                    return false; // 모든 코인이 수집되었으면 충돌 없음
+                } else {
+                    return true; // 코인이 남아있으면 충돌
+                }
+            }
+
+            return false; // 빈 공간일 경우 충돌 없음
+        }
+
+        function checkEntrance() {
+            const tileX = Math.floor(player.x / tileSize);
+            const tileY = Math.floor(player.y / tileSize);
+
+            if (map[tileY][tileX] === 2) { // 출입구에 도달했는지 확인
+                if (allCoinsCollected()) {
+                    if (currentRoom === roomConfigurations.length - 1) {
+                        // 마지막 방에서 출구를 통해 나가면 새 맵 생성
+                        generateRooms();
+                        currentRoom = 0;
+                    } else {
+                        // 다음 방으로 이동
+                        currentRoom++;
+                    }
+
+                    // 새로운 방의 중앙으로 캐릭터 이동
+                    const newRoom = roomConfigurations[currentRoom];
+                    startingTileX = newRoom.x + Math.floor(newRoom.width / 2);
+                    startingTileY = newRoom.y + Math.floor(newRoom.height / 2);
+                    player.x = startingTileX * tileSize;
+                    player.y = startingTileY * tileSize;
+
+                    // 코인 생성 시 플레이어의 새로운 시작 위치를 반영
+                    generateCoins();
+                } else {
+                    alert("모든 코인을 수집해야 출입구를 사용할 수 있습니다!");
+                }
+            }
+        }
+
+        function checkCoinCollision() {
+            const playerTileX = Math.floor(player.x / tileSize);
+            const playerTileY = Math.floor(player.y / tileSize);
+
+            for (const coin of coins) {
+                if (!coin.collected && coin.x === playerTileX && coin.y === playerTileY) {
+                    coin.collected = true;
+                    coinCount++;
+                    updateCoinCounter();
+                }
+            }
+        }
+
+        function movePlayer(dx, dy) {
+            const newX = player.x + dx;
+            const newY = player.y + dy;
+
+            const tileX = Math.floor(newX / tileSize);
+            const tileY = Math.floor(newY / tileSize);
+
+            if (tileX < 0 || tileY < 0 || tileX >= mapWidth || tileY >= mapHeight) {
+                return; // 맵 경계 밖으로 이동 방지
+            }
+
+            if (map[tileY][tileX] === 1) {
+                return; // 벽과 충돌 시 이동 방지
+            }
+
+            if (map[tileY][tileX] === 2) { // 출입구인 경우
+                if (allCoinsCollected()) {
+                    // 모든 코인이 수집되었으면 출입구를 통해 맵 이동
+                    player.x = newX;
+                    player.y = newY;
+                    checkEntrance();
+                } else {
+                    alert("모든 코인을 수집해야 출입구를 사용할 수 있습니다!");
+                }
+            } else {
+                // 일반 이동
+                player.x = newX;
+                player.y = newY;
+                checkEntrance();
+                checkCoinCollision();
+            }
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawMap();
+            drawCoins();
+            drawPlayer();
+        }
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'ArrowUp') movePlayer(0, -tileSize);
+            if (e.key === 'ArrowDown') movePlayer(0, tileSize);
+            if (e.key === 'ArrowLeft') movePlayer(-tileSize, 0);
+            if (e.key === 'ArrowRight') movePlayer(tileSize, 0);
+
+            gameLoop();
+        });
+
+        // 초기화
+        generateRooms();
+        gameLoop();
+    </script>
+</body>
+</html>
