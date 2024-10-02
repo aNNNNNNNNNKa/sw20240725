@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rogue</title>
+    <title>랜덤 맵과 방, 통로 및 코인</title>
     <style>
         canvas {
             border: 1px solid black;
@@ -40,9 +40,9 @@
         const mapWidth = canvas.width / tileSize;
         const mapHeight = canvas.height / tileSize;
 
-        // 맵 저장 배열 (mapNumber에 따라 저장)
+        // 맵 저장 배열 (0부터 시작)
         let maps = [];
-        let mapNumber = 1; // 현재 맵 번호
+        let mapNumber = 0; // 현재 맵 번호 (0부터 시작)
 
         // 글로벌 맵 변수
         let map = [];
@@ -102,7 +102,7 @@
         // 맵 번호 표시 업데이트 함수
         function updateMapNumberDisplay() {
             const display = document.getElementById('mapNumberDisplay');
-            display.textContent = `${mapNumber}번째 맵`;
+            display.textContent = `${mapNumber + 1}번째 맵`;
         }
 
         // 초기 맵 배열을 모두 벽으로 설정하는 함수
@@ -199,7 +199,7 @@
             exitPositions.push({ x: lastRoomExitX, y: lastRoomExitY });
 
             // 이전 맵으로 돌아가는 초록색 오브젝트 추가
-            if (mapNumber > 1) { // 첫 번째 맵이 아니면
+            if (mapNumber > 0) { // 첫 번째 맵이 아니면
                 // 초록색 오브젝트를 첫 번째 방의 왼쪽 위에 위치시킵니다.
                 const firstRoom = roomConfigurations[0];
                 const greenX = firstRoom.x;
@@ -224,9 +224,9 @@
             // saveMapState();
 
             // 디버깅 로그
-            console.log(`맵 ${mapNumber} 생성 완료`);
+            console.log(`맵 ${mapNumber + 1} 생성 완료`);
             console.log(`출입구 위치: (${lastRoomExitX}, ${lastRoomExitY})`);
-            if (mapNumber > 1) {
+            if (mapNumber > 0) {
                 console.log(`초록색 오브젝트 위치: (${greenX}, ${greenY})`);
             }
             coins.forEach(coin => {
@@ -236,6 +236,7 @@
 
         // 맵 상태를 저장하는 배열에 저장하는 함수
         function saveMapState() {
+            // 깊은 복사
             const mapCopy = map.map(row => row.slice());
             const roomsCopy = roomConfigurations.map(room => ({ ...room }));
             const playerCopy = { ...player };
@@ -249,12 +250,12 @@
             };
 
             // 디버깅 로그
-            console.log(`맵 ${mapNumber} 저장 완료`);
+            console.log(`맵 ${mapNumber + 1} 저장 완료`);
         }
 
         // 특정 맵 번호의 상태를 불러오는 함수
         function loadMapState(n) {
-            if (!maps[n]) {
+            if (n < 0 || n >= maps.length) {
                 alert("존재하지 않는 맵입니다!");
                 return false;
             }
@@ -291,9 +292,9 @@
             recalculateTotalCoinCount();
 
             // 디버깅 로그
-            console.log(`맵 ${mapNumber} 로드 완료`);
+            console.log(`맵 ${mapNumber + 1} 로드 완료`);
             console.log(`출입구 위치: (${previousMapState.map.map((row, y) => row.indexOf(2)).filter(x => x !== -1)[0]}, ${previousMapState.map.findIndex(row => row.includes(2))})`);
-            if (mapNumber > 1) {
+            if (mapNumber > 0) {
                 console.log(`초록색 오브젝트 위치: (${roomConfigurations[0].x}, ${roomConfigurations[0].y})`);
             }
             coins.forEach(coin => {
@@ -303,10 +304,26 @@
             return true;
         }
 
-        // 맵을 이동할 때 사용
+        // 코인 카운트 재계산 함수
+        function recalculateTotalCoinCount() {
+            totalCoinCount = 0;
+            for (let n = 0; n < maps.length; n++) {
+                const mapState = maps[n];
+                if (mapState && mapState.coins) {
+                    for (const coin of mapState.coins) {
+                        if (coin.collected) {
+                            totalCoinCount++;
+                        }
+                    }
+                }
+            }
+            updateCoinCounter();
+        }
+
+        // 맵을 이동할 때 사용 (next: true for next map, false for previous map)
         function moveMap(next) {
             if (next) {
-                if (mapNumber < maps.length && maps[mapNumber + 1]) {
+                if (mapNumber + 1 < maps.length && maps[mapNumber + 1]) {
                     // 이미 생성된 맵이 있다면 로드
                     mapNumber++;
                     loadMapState(mapNumber);
@@ -316,7 +333,7 @@
                     generateRooms();
                 }
             } else {
-                if (mapNumber > 1) {
+                if (mapNumber > 0) {
                     mapNumber--;
                     loadMapState(mapNumber);
                 } else {
@@ -359,24 +376,6 @@
             updateCoinCounter();
         }
 
-        // 코인 카운트 재계산 함수
-        function recalculateTotalCoinCount() {
-            totalCoinCount = 0;
-            for (let n in maps) {
-                if (maps.hasOwnProperty(n)) {
-                    const mapState = maps[n];
-                    if (mapState && mapState.coins) {
-                        for (const coin of mapState.coins) {
-                            if (coin.collected) {
-                                totalCoinCount++;
-                            }
-                        }
-                    }
-                }
-            }
-            updateCoinCounter();
-        }
-
         function drawMap() {
             for (let y = 0; y < mapHeight; y++) {
                 for (let x = 0; x < mapWidth; x++) {
@@ -387,6 +386,7 @@
                     } else if (map[y][x] === 3) {
                         ctx.fillStyle = 'green'; // 이전 맵으로 돌아가는 오브젝트 색상
                     } else {
+                        // 체스보드 패턴 적용: (x + y)가 짝수면 흰색, 홀수면 회색
                         ctx.fillStyle = ((x + y) % 2 === 0) ? 'white' : 'gray';
                     }
                     ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
@@ -420,7 +420,7 @@
                     saveMapState();
                     moveMap(true); // 다음 맵으로 이동
                 } else {
-                    alert("모든 코인을 수집해야 출입구 사용 가능!");
+                    alert("모든 코인을 수집해야 출입구를 사용할 수 있습니다!");
                 }
             }
 
@@ -438,7 +438,8 @@
                     coin.collected = true;
                     totalCoinCount++;
                     updateCoinCounter();
-                    // 사운드 추가는 여기서 호출
+                    // 사운드 추가가 필요하면 여기서 호출
+                    // playCoinSound();
                 }
             }
         }
